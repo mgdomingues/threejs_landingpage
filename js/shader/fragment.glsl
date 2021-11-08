@@ -16,7 +16,7 @@ void main() {
 	vec3 Y = dFdy(vNormal);
 	vec3 normal = normalize(cross(X,Y));
 
-  vec3 refracted = refract(eyeVector,normal,1./3.);
+  vec3 refracted = refract(eyeVector,normal,1./5.);
 	uv += refracted.xy;
 
 	float diffuse = dot(normal,vec3(1.));
