@@ -8,6 +8,8 @@ import * as dat from "dat.gui";
 import gsap from "gsap";
 import { degToRad } from "three/src/math/MathUtils";
 
+import landscape from "../photo.jpg"
+
 export default class Sketch{
     constructor(options){
         this.scene = new THREE.Scene();
@@ -101,19 +103,20 @@ export default class Sketch{
             side: THREE.DoubleSide,
             uniforms : {
                 time: {type: "f", value: 0},
+                landscape: {value: new THREE.TextureLoader().load(landscape)},
                 resolution: { type: "v4", value: new THREE.Vector4() },
                 uvRate1: {
                     value: new THREE.Vector2(1 ,1)
                 }
             },
-            //
-            //
+            //wireframe: true,
+            //transparent: true,
             vertexShader: vertex,
             fragmentShader: fragment
 
         });
-
-        this.geometry = new THREE.PlaneGeometry(1, 1, 1, 1);
+        //IcosahedronGeometry(radius : Float, detail : Integer)
+        this.geometry = new THREE.IcosahedronGeometry(1, 1)
 
         this.plane = new THREE.Mesh(this.geometry, this.material);
         this.scene.add(this.plane);
