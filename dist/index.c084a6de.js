@@ -31231,10 +31231,10 @@ class MapControls extends OrbitControls {
 }
 
 },{"three":"64dkv","@parcel/transformer-js/src/esmodule-helpers.js":"ciiiV"}],"dEv3V":[function(require,module,exports) {
-module.exports = "#define GLSLIFY 1\nuniform float time; \nuniform float progress;\nuniform sampler2D landscape;\nuniform vec4 resolution;\nvarying vec2 vUv;\nvarying vec3 vNormal;\nfloat PI = 3.141592653589793238;\nvoid main() {\n\n\tvec3 X = dFdx(vNormal);\n\tvec3 Y = dFdy(vNormal);\n\tvec3 normal = normalize(cross(X,Y));\n\n  float diffuse = dot(normal,vec3(1.));\n\tvec4 t = texture2D(landscape, vUv);\n  //gl_FragColor = vec4(vUv,0.0,1.);\n  gl_FragColor = t;\n  gl_FragColor = vec4(diffuse);\n}";
+module.exports = "#define GLSLIFY 1\nuniform float time; \nuniform float progress;\nuniform sampler2D landscape;\nuniform vec4 resolution;\nvarying vec2 vUv;\nvarying vec3 vNormal;\nfloat PI = 3.141592653589793238;\nvoid main() {\n\n  vec2 uv = gl_FragCoord.xy/vec2(1000.);\n\n\tvec3 X = dFdx(vNormal);\n\tvec3 Y = dFdy(vNormal);\n\tvec3 normal = normalize(cross(X,Y));\n\n  float diffuse = dot(normal,vec3(1.));\n\tvec4 t = texture2D(landscape, uv);\n  //gl_FragColor = vec4(vUv,0.0,1.);\n  gl_FragColor = t;\n  //gl_FragColor = vec4(diffuse);\n}";
 
 },{}],"ieEuo":[function(require,module,exports) {
-module.exports = "#define GLSLIFY 1\nuniform float time;\nvarying vec2 vUv;\nvarying vec3 vPosition;\nuniform vec2 pixels;\nvarying vec3 vNormal;\nfloat PI = 3.141592653589793238;\nvoid main() {\n\n  vUv = uv;\n  vNormal = normal;\n  gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );\n\n}\n";
+module.exports = "#define GLSLIFY 1\nuniform float time;\nvarying vec2 vUv;\nvarying vec3 vPosition;\nuniform vec2 pixels;\nvarying vec3 vNormal;\nfloat PI = 3.141592653589793238;\nvoid main() {\n\n  vUv = uv;\n  vNormal = normalize(normalMatrix*normal);\n  gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );\n\n}\n";
 
 },{}],"8a4N4":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
