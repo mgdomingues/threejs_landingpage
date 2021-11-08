@@ -536,6 +536,8 @@ class Sketch {
     }
     addObjects() {
         let that = this;
+        let t = new _three.TextureLoader().load(_photoJpgDefault.default);
+        t.wrapS = t.wrapT = _three.MirroredRepeatWrapping;
         this.material = new _three.ShaderMaterial({
             extensions: {
                 derivatives: "#extensio GL_OES_standard_derivatives : enable"
@@ -547,7 +549,7 @@ class Sketch {
                     value: 0
                 },
                 landscape: {
-                    value: new _three.TextureLoader().load(_photoJpgDefault.default)
+                    value: t
                 },
                 resolution: {
                     type: "v4",
@@ -31231,7 +31233,7 @@ class MapControls extends OrbitControls {
 }
 
 },{"three":"64dkv","@parcel/transformer-js/src/esmodule-helpers.js":"ciiiV"}],"dEv3V":[function(require,module,exports) {
-module.exports = "#define GLSLIFY 1\nuniform float time; \nuniform float progress;\nuniform sampler2D landscape;\nuniform vec4 resolution;\nvarying vec2 vUv;\nvarying vec3 vNormal;\nfloat PI = 3.141592653589793238;\nvoid main() {\n\n  vec2 uv = gl_FragCoord.xy/vec2(1000.);\n\n\tvec3 X = dFdx(vNormal);\n\tvec3 Y = dFdy(vNormal);\n\tvec3 normal = normalize(cross(X,Y));\n\n  float diffuse = dot(normal,vec3(1.));\n\tvec4 t = texture2D(landscape, uv);\n  //gl_FragColor = vec4(vUv,0.0,1.);\n  gl_FragColor = t;\n  //gl_FragColor = vec4(diffuse);\n}";
+module.exports = "#define GLSLIFY 1\nuniform float time; \nuniform float progress;\nuniform sampler2D landscape;\nuniform vec4 resolution;\nvarying vec2 vUv;\nvarying vec3 vNormal;\nfloat PI = 3.141592653589793238;\nvoid main() {\n\n  vec2 uv = vec2(0.5,-0.5)*gl_FragCoord.xy/vec2(1000.);\n\n\tvec3 X = dFdx(vNormal);\n\tvec3 Y = dFdy(vNormal);\n\tvec3 normal = normalize(cross(X,Y));\n\n  float diffuse = dot(normal,vec3(1.));\n\tvec4 t = texture2D(landscape, uv);\n  //gl_FragColor = vec4(vUv,0.0,1.);\n  gl_FragColor = t;\n  //gl_FragColor = vec4(diffuse);\n}";
 
 },{}],"ieEuo":[function(require,module,exports) {
 module.exports = "#define GLSLIFY 1\nuniform float time;\nvarying vec2 vUv;\nvarying vec3 vPosition;\nuniform vec2 pixels;\nvarying vec3 vNormal;\nfloat PI = 3.141592653589793238;\nvoid main() {\n\n  vUv = uv;\n  vNormal = normalize(normalMatrix*normal);\n  gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );\n\n}\n";

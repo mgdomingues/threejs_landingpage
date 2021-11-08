@@ -96,6 +96,10 @@ export default class Sketch{
 
     addObjects() {
         let that = this;
+
+        let t=new THREE.TextureLoader().load(landscape);
+        t.wrapS = t.wrapT = THREE.MirroredRepeatWrapping;
+
         this.material = new THREE.ShaderMaterial({
             extensions: {
                 derivatives: "#extensio GL_OES_standard_derivatives : enable" 
@@ -103,7 +107,7 @@ export default class Sketch{
             side: THREE.DoubleSide,
             uniforms : {
                 time: {type: "f", value: 0},
-                landscape: {value: new THREE.TextureLoader().load(landscape)},
+                landscape: {value: t},
                 resolution: { type: "v4", value: new THREE.Vector4() },
                 uvRate1: {
                     value: new THREE.Vector2(1 ,1)

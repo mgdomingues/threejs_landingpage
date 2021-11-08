@@ -7,7 +7,7 @@ varying vec3 vNormal;
 float PI = 3.141592653589793238;
 void main() {
 
-  vec2 uv = gl_FragCoord.xy/vec2(1000.);
+  vec2 uv = vec2(0.5,-0.5)*gl_FragCoord.xy/vec2(1000.);
 
 	vec3 X = dFdx(vNormal);
 	vec3 Y = dFdy(vNormal);
