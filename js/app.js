@@ -5,6 +5,13 @@ import fragment from "./shader/fragment.glsl";
 import fragment1 from "./shader/fragment1.glsl";
 import vertex from "./shader/vertex.glsl";
 
+
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js'
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js'
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js'
+import { PostProcessing } from './postprocessing'
+
+
 import * as dat from "dat.gui";
 import gsap from "gsap";
 import { degToRad } from "three/src/math/MathUtils";
@@ -43,11 +50,30 @@ export default class Sketch{
         this.isPlaying = true;
 
         this.addObjects();
+        this.addPost(); 
         this.resize();
         this.render();
         this.setupResize();
         //this.settings();
 
+    }
+
+
+    addPost() {
+        /**
+         * Effect Composer
+         */
+        this.composer = new EffectComposer(this.renderer);
+        //this.composer.setSize(sizes.width, sizes.height);
+        this.composer.addPass(new RenderPass(this.scene, this.camera));
+        
+        this.customPass = new ShaderPass(PostProcessing)
+        this.customPass.uniforms['resolution'].value = new THREE.Vector2(
+            window.innerWidth,
+            window.innerHeight
+        );
+        this.customPass.uniforms['resolution'].value.multiplyScalar(window.devicePixelRatio);
+        this.composer.addPass(this.customPass)
     }
 
     settings() {
@@ -181,14 +207,19 @@ export default class Sketch{
 
     render() {
         if(!this.isPlaying) return;
-        this.time += 0.001;
+        //change rate of rotation
+        this.time += 0.003;
         this.scene.rotation.x = this.time;
         this.scene.rotation.y = this.time;
+        this.customPass.uniforms.time.value = this.time;
         this.material.uniforms.time.value = this.time;
+        this.material1.uniforms.time.value = this.time;
         requestAnimationFrame(this.render.bind(this));
-        this.renderer.render(this.scene, this.camera);
+        //this.renderer.render(this.scene, this.camera);
+        this.composer.render();
 
     }
+    
 }
 
 new Sketch({
