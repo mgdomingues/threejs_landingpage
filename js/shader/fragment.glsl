@@ -8,18 +8,29 @@ varying vec3 vNormal;
 varying vec3 eyeVector;
 
 float PI = 3.141592653589793238;
+
+
+vec2 hash22(vec2 p) {
+	p = fract(p * vec2(5.3983, 5.4427));
+	p += dot(p.yx, p.xy + vec2(21.5351, 14.3137));
+	return fract(vec2(p.x * p.y * 95.4337, p.x * p.y * 97.597));
+}
+
+
 void main() {
-
-  vec2 uv = gl_FragCoord.xy/vec2(1000.);
-
-	vec3 X = dFdx(vNormal);
+  vec3 X = dFdx(vNormal);
 	vec3 Y = dFdy(vNormal);
 	vec3 normal = normalize(cross(X,Y));
+  float diffuse = dot(normal,vec3(1.));
 
-  vec3 refracted = refract(eyeVector,normal,1./5.);
+  vec2 rand = hash22(vec2(floor(diffuse*20.)));
+
+
+  vec2 uv = rand * gl_FragCoord.xy/vec2(1000.);
+
+  vec3 refracted = refract(eyeVector,normal,1./3.);
 	uv += refracted.xy;
 
-	float diffuse = dot(normal,vec3(1.));
 	vec4 t = texture2D(landscape,uv);
   //gl_FragColor = vec4(vUv,0.0,1.);
   gl_FragColor = t;
