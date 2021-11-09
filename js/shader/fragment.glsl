@@ -24,9 +24,13 @@ void main() {
   float diffuse = dot(normal,vec3(1.));
 
   vec2 rand = hash22(vec2(floor(diffuse*20.)));
+  
+  vec2 rand_dir = vec2(
+		sign(rand.x - 0.5) * 1. + (rand.x - 0.5) * .6,
+		sign(rand.y - 0.5) * 1. + (rand.y - 0.5) * .6
+	);
 
-
-  vec2 uv = rand * gl_FragCoord.xy/vec2(1000.);
+  vec2 uv = rand_dir * gl_FragCoord.xy/vec2(1000.);
 
   vec3 refracted = refract(eyeVector,normal,1./3.);
 	uv += refracted.xy;
