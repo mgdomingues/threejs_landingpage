@@ -22,6 +22,14 @@ vec2 hash22(vec2 p) {
 
 void main() {
 
-  gl_FragColor = vec4(vBary, 1.);
+  //line thickness
+  float width = 1.;
+  //fwidth rate of change
+  vec3 d = fwidth(vBary);
+  vec3 s = smoothstep( d*( width + 0.5), d*( width - 0.5), vBary );
+  float line = max(s.x,max(s.y,s.z));
+  if (line<0.1) discard;
+  //gl_FragColor = vec4( vec3(line), 1.);
+  gl_FragColor = vec4( mix( vec3(1.), vec3(0.), 1. - line),1.);
 
 }

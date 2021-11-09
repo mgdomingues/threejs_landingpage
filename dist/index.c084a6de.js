@@ -37477,7 +37477,7 @@ exports.getBaseURL = getBaseURL;
 exports.getOrigin = getOrigin;
 
 },{}],"inkRZ":[function(require,module,exports) {
-module.exports = "#define GLSLIFY 1\nuniform float time; \nuniform float progress;\nuniform sampler2D landscape;\nuniform vec4 resolution;\n//varying vec2 vUv;\n//varying vec3 vNormal;\n\nvarying vec3 eyeVector;\n\nvarying vec3 vBary;\n\nfloat PI = 3.141592653589793238;\n\nvec2 hash22(vec2 p) {\n\tp = fract(p * vec2(5.3983, 5.4427));\n\tp += dot(p.yx, p.xy + vec2(21.5351, 14.3137));\n\treturn fract(vec2(p.x * p.y * 95.4337, p.x * p.y * 97.597));\n}\n\nvoid main() {\n\n  gl_FragColor = vec4(vBary, 1.);\n\n}";
+module.exports = "#define GLSLIFY 1\nuniform float time; \nuniform float progress;\nuniform sampler2D landscape;\nuniform vec4 resolution;\n//varying vec2 vUv;\n//varying vec3 vNormal;\n\nvarying vec3 eyeVector;\n\nvarying vec3 vBary;\n\nfloat PI = 3.141592653589793238;\n\nvec2 hash22(vec2 p) {\n\tp = fract(p * vec2(5.3983, 5.4427));\n\tp += dot(p.yx, p.xy + vec2(21.5351, 14.3137));\n\treturn fract(vec2(p.x * p.y * 95.4337, p.x * p.y * 97.597));\n}\n\nvoid main() {\n\n  //line thickness\n  float width = 1.;\n  //fwidth rate of change\n  vec3 d = fwidth(vBary);\n  vec3 s = smoothstep( d*( width + 0.5), d*( width - 0.5), vBary );\n  float line = max(s.x,max(s.y,s.z));\n  if (line<0.1) discard;\n  //gl_FragColor = vec4( vec3(line), 1.);\n  gl_FragColor = vec4( mix( vec3(1.), vec3(0.), 1. - line),1.);\n\n}";
 
 },{}]},["2Ejgi","1CZ7F"], "1CZ7F", "parcelRequire94c2")
 
