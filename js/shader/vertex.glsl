@@ -6,10 +6,16 @@ varying vec3 vNormal;
 
 varying vec3 eyeVector;
 
+  
+varying vec3 vBary;
+attribute vec3 aBary;
+
 float PI = 3.141592653589793238;
 void main() {
 
   vUv = uv;
+  vBary = aBary;
+  
   vNormal = normalize(normalMatrix*normal);
 
   vec3 newPosition = position;

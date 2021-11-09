@@ -465,6 +465,8 @@ var _three = require("three");
 var _orbitControlsJs = require("three/examples/jsm/controls/OrbitControls.js");
 var _fragmentGlsl = require("./shader/fragment.glsl");
 var _fragmentGlslDefault = parcelHelpers.interopDefault(_fragmentGlsl);
+var _fragment1Glsl = require("./shader/fragment1.glsl");
+var _fragment1GlslDefault = parcelHelpers.interopDefault(_fragment1Glsl);
 var _vertexGlsl = require("./shader/vertex.glsl");
 var _vertexGlslDefault = parcelHelpers.interopDefault(_vertexGlsl);
 var _datGui = require("dat.gui");
@@ -564,10 +566,46 @@ class Sketch {
             vertexShader: _vertexGlslDefault.default,
             fragmentShader: _fragmentGlslDefault.default
         });
+        this.material1 = new _three.ShaderMaterial({
+            extensions: {
+                derivatives: "#extensio GL_OES_standard_derivatives : enable"
+            },
+            side: _three.DoubleSide,
+            uniforms: {
+                time: {
+                    type: "f",
+                    value: 0
+                },
+                landscape: {
+                    value: t
+                },
+                resolution: {
+                    type: "v4",
+                    value: new _three.Vector4()
+                },
+                uvRate1: {
+                    value: new _three.Vector2(1, 1)
+                }
+            },
+            //wireframe: true,
+            //transparent: true,
+            vertexShader: _vertexGlslDefault.default,
+            fragmentShader: _fragment1GlslDefault.default
+        });
         //IcosahedronGeometry(radius : Float, detail : Integer)
         this.geometry = new _three.IcosahedronGeometry(1, 1);
-        this.plane = new _three.Mesh(this.geometry, this.material);
-        this.scene.add(this.plane);
+        this.geometry1 = new _three.IcosahedronBufferGeometry(1.001, 1) //(1.001, 1)
+        ;
+        let length = this.geometry1.attributes.position.array.length;
+        let bary = [];
+        for(let i = 0; i < length / 3; i++)// xyz, xyz, xyz
+        bary.push(0, 0, 1, 0, 1, 0, 1, 0, 0);
+        let aBary = new Float32Array(bary);
+        this.geometry1.setAttribute('aBary', new _three.BufferAttribute(aBary, 3));
+        this.ico = new _three.Mesh(this.geometry1, this.material);
+        this.icoLines = new _three.Mesh(this.geometry1, this.material1);
+        this.scene.add(this.ico);
+        this.scene.add(this.icoLines);
     }
     stop() {
         this.isPlaying = false;
@@ -593,7 +631,7 @@ new Sketch({
     dom: document.getElementById("container")
 });
 
-},{"three":"64dkv","three/examples/jsm/controls/OrbitControls.js":"2PBCh","./shader/fragment.glsl":"dEv3V","./shader/vertex.glsl":"ieEuo","dat.gui":"8a4N4","gsap":"2aTR0","three/src/math/MathUtils":"eqqAW","@parcel/transformer-js/src/esmodule-helpers.js":"ciiiV","../photo.jpg":"5tfWT"}],"64dkv":[function(require,module,exports) {
+},{"three":"64dkv","three/examples/jsm/controls/OrbitControls.js":"2PBCh","./shader/fragment.glsl":"dEv3V","./shader/vertex.glsl":"ieEuo","dat.gui":"8a4N4","gsap":"2aTR0","three/src/math/MathUtils":"eqqAW","@parcel/transformer-js/src/esmodule-helpers.js":"ciiiV","../photo.jpg":"5tfWT","./shader/fragment1.glsl":"inkRZ"}],"64dkv":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "ACESFilmicToneMapping", ()=>ACESFilmicToneMapping
@@ -31235,10 +31273,10 @@ class MapControls extends OrbitControls {
 }
 
 },{"three":"64dkv","@parcel/transformer-js/src/esmodule-helpers.js":"ciiiV"}],"dEv3V":[function(require,module,exports) {
-module.exports = "#define GLSLIFY 1\nuniform float time; \nuniform float progress;\nuniform sampler2D landscape;\nuniform vec4 resolution;\nvarying vec2 vUv;\nvarying vec3 vNormal;\n\nvarying vec3 eyeVector;\n\nfloat PI = 3.141592653589793238;\n\nvec2 hash22(vec2 p) {\n\tp = fract(p * vec2(5.3983, 5.4427));\n\tp += dot(p.yx, p.xy + vec2(21.5351, 14.3137));\n\treturn fract(vec2(p.x * p.y * 95.4337, p.x * p.y * 97.597));\n}\n\nvoid main() {\n  vec3 X = dFdx(vNormal);\n\tvec3 Y = dFdy(vNormal);\n\tvec3 normal = normalize(cross(X,Y));\n  float diffuse = dot(normal,vec3(1.));\n\n  vec2 rand = hash22(vec2(floor(diffuse*20.)));\n  \n  vec2 rand_dir = vec2(\n\t\tsign(rand.x - 0.5) * 1. + (rand.x - 0.5) * .6,\n\t\tsign(rand.y - 0.5) * 1. + (rand.y - 0.5) * .6\n\t);\n\n  vec2 uv = rand_dir * gl_FragCoord.xy/vec2(1000.);\n\n  vec3 refracted = refract(eyeVector,normal,1./3.);\n\tuv += refracted.xy;\n\n\tvec4 t = texture2D(landscape,uv);\n  //gl_FragColor = vec4(vUv,0.0,1.);\n  gl_FragColor = t;\n  //gl_FragColor = vec4(diffuse);\n}";
+module.exports = "#define GLSLIFY 1\nuniform float time; \nuniform float progress;\nuniform sampler2D landscape;\nuniform vec4 resolution;\n//varying vec2 vUv;\nvarying vec3 vNormal;\n\nvarying vec3 eyeVector;\n\nvarying vec3 vBary;\n\nfloat PI = 3.141592653589793238;\n\nvec2 hash22(vec2 p) {\n\tp = fract(p * vec2(5.3983, 5.4427));\n\tp += dot(p.yx, p.xy + vec2(21.5351, 14.3137));\n\treturn fract(vec2(p.x * p.y * 95.4337, p.x * p.y * 97.597));\n}\n\nvoid main() {\n  vec3 X = dFdx(vNormal);\n\tvec3 Y = dFdy(vNormal);\n\tvec3 normal = normalize(cross(X,Y));\n  float diffuse = dot(normal,vec3(1.));\n\n  vec2 rand = hash22(vec2(floor(diffuse*10.)));\n  \n  vec2 uvv = vec2(\n\t\tsign(rand.x - 0.5) * 1. + (rand.x - 0.5) * .6,\n\t\tsign(rand.y - 0.5) * 1. + (rand.y - 0.5) * .6\n\t);\n\n  vec2 uv = uvv * gl_FragCoord.xy/vec2(1000.);\n\n  vec3 refracted = refract(eyeVector,normal,1./3.);\n\t//multiple makes it slower\n  uv += 0.2*refracted.xy;\n\n\tvec4 t = texture2D(landscape,uv);\n  //gl_FragColor = vec4(vUv,0.0,1.);\n  gl_FragColor = t;\n  //gl_FragColor = vec4(vBary, 1.);\n\n  //gl_FragColor = vec4(diffuse);\n}";
 
 },{}],"ieEuo":[function(require,module,exports) {
-module.exports = "#define GLSLIFY 1\nuniform float time;\nvarying vec2 vUv;\nvarying vec3 vPosition;\nuniform vec2 pixels;\nvarying vec3 vNormal;\n\nvarying vec3 eyeVector;\n\nfloat PI = 3.141592653589793238;\nvoid main() {\n\n  vUv = uv;\n  vNormal = normalize(normalMatrix*normal);\n\n  vec3 newPosition = position;\n  vec4 worldPosition = modelMatrix * vec4(newPosition, 1.0);\n  eyeVector = normalize(worldPosition.xyz - cameraPosition);\n\n  gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );\n\n}\n";
+module.exports = "#define GLSLIFY 1\nuniform float time;\nvarying vec2 vUv;\nvarying vec3 vPosition;\nuniform vec2 pixels;\nvarying vec3 vNormal;\n\nvarying vec3 eyeVector;\n\n  \nvarying vec3 vBary;\nattribute vec3 aBary;\n\nfloat PI = 3.141592653589793238;\nvoid main() {\n\n  vUv = uv;\n  vBary = aBary;\n  \n  vNormal = normalize(normalMatrix*normal);\n\n  vec3 newPosition = position;\n  vec4 worldPosition = modelMatrix * vec4(newPosition, 1.0);\n  eyeVector = normalize(worldPosition.xyz - cameraPosition);\n\n  gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );\n\n}\n";
 
 },{}],"8a4N4":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
@@ -37437,6 +37475,9 @@ function getOrigin(url) {
 exports.getBundleURL = getBundleURLCached;
 exports.getBaseURL = getBaseURL;
 exports.getOrigin = getOrigin;
+
+},{}],"inkRZ":[function(require,module,exports) {
+module.exports = "#define GLSLIFY 1\nuniform float time; \nuniform float progress;\nuniform sampler2D landscape;\nuniform vec4 resolution;\n//varying vec2 vUv;\n//varying vec3 vNormal;\n\nvarying vec3 eyeVector;\n\nvarying vec3 vBary;\n\nfloat PI = 3.141592653589793238;\n\nvec2 hash22(vec2 p) {\n\tp = fract(p * vec2(5.3983, 5.4427));\n\tp += dot(p.yx, p.xy + vec2(21.5351, 14.3137));\n\treturn fract(vec2(p.x * p.y * 95.4337, p.x * p.y * 97.597));\n}\n\nvoid main() {\n\n  gl_FragColor = vec4(vBary, 1.);\n\n}";
 
 },{}]},["2Ejgi","1CZ7F"], "1CZ7F", "parcelRequire94c2")
 

@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 import fragment from "./shader/fragment.glsl";
+import fragment1 from "./shader/fragment1.glsl";
 import vertex from "./shader/vertex.glsl";
 
 import * as dat from "dat.gui";
@@ -119,11 +120,52 @@ export default class Sketch{
             fragmentShader: fragment
 
         });
-        //IcosahedronGeometry(radius : Float, detail : Integer)
-        this.geometry = new THREE.IcosahedronGeometry(1, 1)
 
-        this.plane = new THREE.Mesh(this.geometry, this.material);
-        this.scene.add(this.plane);
+        this.material1 = new THREE.ShaderMaterial({
+            extensions: {
+                derivatives: "#extensio GL_OES_standard_derivatives : enable" 
+            },
+            side: THREE.DoubleSide,
+            uniforms : {
+                time: {type: "f", value: 0},
+                landscape: {value: t},
+                resolution: { type: "v4", value: new THREE.Vector4() },
+                uvRate1: {
+                    value: new THREE.Vector2(1 ,1)
+                }
+            },
+            //wireframe: true,
+            //transparent: true,
+            vertexShader: vertex,
+            fragmentShader: fragment1
+
+        });
+
+        //IcosahedronGeometry(radius : Float, detail : Integer)
+        this.geometry = new THREE.IcosahedronGeometry(1, 1);
+        this.geometry1 = new THREE.IcosahedronBufferGeometry(
+            1.001,
+            1
+          ) //(1.001, 1)
+        
+          let length = this.geometry1.attributes.position.array.length
+          let bary = []
+        
+          for (let i = 0; i < length / 3; i++) {
+            // xyz, xyz, xyz
+            bary.push(0, 0, 1, 0, 1, 0, 1, 0, 0)
+          }
+        
+          let aBary = new Float32Array(bary)
+          this.geometry1.setAttribute('aBary', new THREE.BufferAttribute(aBary, 3))
+
+
+        this.ico = new THREE.Mesh(this.geometry1, this.material);
+        this.icoLines = new THREE.Mesh(this.geometry1, this.material1);
+
+        this.scene.add(this.ico);
+        this.scene.add(this.icoLines);
+
     }
 
     stop() {

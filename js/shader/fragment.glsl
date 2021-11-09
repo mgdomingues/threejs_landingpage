@@ -2,10 +2,13 @@ uniform float time;
 uniform float progress;
 uniform sampler2D landscape;
 uniform vec4 resolution;
-varying vec2 vUv;
+//varying vec2 vUv;
 varying vec3 vNormal;
 
 varying vec3 eyeVector;
+
+varying vec3 vBary;
+
 
 float PI = 3.141592653589793238;
 
@@ -23,20 +26,23 @@ void main() {
 	vec3 normal = normalize(cross(X,Y));
   float diffuse = dot(normal,vec3(1.));
 
-  vec2 rand = hash22(vec2(floor(diffuse*20.)));
+  vec2 rand = hash22(vec2(floor(diffuse*10.)));
   
-  vec2 rand_dir = vec2(
+  vec2 uvv = vec2(
 		sign(rand.x - 0.5) * 1. + (rand.x - 0.5) * .6,
 		sign(rand.y - 0.5) * 1. + (rand.y - 0.5) * .6
 	);
 
-  vec2 uv = rand_dir * gl_FragCoord.xy/vec2(1000.);
+  vec2 uv = uvv * gl_FragCoord.xy/vec2(1000.);
 
   vec3 refracted = refract(eyeVector,normal,1./3.);
-	uv += refracted.xy;
+	//multiple makes it slower
+  uv += 0.2*refracted.xy;
 
 	vec4 t = texture2D(landscape,uv);
   //gl_FragColor = vec4(vUv,0.0,1.);
   gl_FragColor = t;
+  //gl_FragColor = vec4(vBary, 1.);
+
   //gl_FragColor = vec4(diffuse);
 }
