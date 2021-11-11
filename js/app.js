@@ -205,7 +205,7 @@ export default class Sketch{
         
           for (let i = 0; i < length / 3; i++) {
             // xyz, xyz, xyz
-            bary.push(0, 0, 1, 0, 1, 0, 1, 0, 0)
+            bary.push(0, 0, 1, 0, 1, 0, 1, 0, 0) 
           }
         
           let aBary = new Float32Array(bary)
