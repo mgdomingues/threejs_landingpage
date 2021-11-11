@@ -488,7 +488,7 @@ class Sketch {
         this.renderer = new _three.WebGL1Renderer();
         this.renderer.setPixelRatio(window.devicePixelRatio);
         this.renderer.setSize(this.width, this.height);
-        this.renderer.setClearColor(15658734, 1);
+        this.renderer.setClearColor(1118481, 1);
         this.renderer.physicallyCorrectLights = true;
         this.renderer.outputEncoding = _three.sRGBEncoding;
         this.container.appendChild(this.renderer.domElement);
@@ -502,7 +502,7 @@ class Sketch {
         this.resize();
         this.render();
         this.setupResize();
-    //this.settings();
+        this.settings();
     }
     addPost() {
         /**
@@ -518,10 +518,10 @@ class Sketch {
     settings() {
         let that = this;
         this.settings = {
-            progress: 0
+            howmuchrgbshifticanhaz: 0.5
         };
         this.gui = new _datGui.GUI();
-        this.gui.add(this.settings, "progress", 0, 1, 0.01);
+        this.gui.add(this.settings, "howmuchrgbshifticanhaz", 0, 2, 0.01);
     }
     setupResize() {
         window.addEventListener("resize", this.resize.bind(this));
@@ -635,10 +635,11 @@ class Sketch {
     render() {
         if (!this.isPlaying) return;
         //change rate of rotation
-        this.time += 0.003;
+        this.time += 0.005;
         this.scene.rotation.x = this.time;
         this.scene.rotation.y = this.time;
         this.customPass.uniforms.time.value = this.time;
+        this.customPass.uniforms.howmuchrgbshifticanhaz.value = this.settings.howmuchrgbshifticanhaz;
         this.material.uniforms.time.value = this.time;
         this.material1.uniforms.time.value = this.time;
         requestAnimationFrame(this.render.bind(this));
@@ -37957,7 +37958,7 @@ const PostProcessing = {
             value: null
         },
         howmuchrgbshifticanhaz: {
-            value: 0
+            value: null
         },
         resolution: {
             value: null
@@ -37989,11 +37990,11 @@ const PostProcessing = {
         }
 
 		void main(){
+            //multiply by amount of shift the vec2 values make the displacement bigger 
             vec2 shift = vec2(0.01, 0.01) * howmuchrgbshifticanhaz;
 
             // Black & White
             vec4 t = texture2D(tDiffuse,vUv);
-            //the multiplier makes it darker
             vec3 color = vec3((t.r + t.b + t.g)/5.);
 
             // RGB shift
@@ -38007,6 +38008,7 @@ const PostProcessing = {
 
 
             // Noise
+            //multiplier makes more noise
             float val = hash(vUv + time) * 0.3;
 
 			vec2 dxy = pixelSize / resolution;
@@ -38016,13 +38018,15 @@ const PostProcessing = {
 
             // Black & White + noise
             //gl_FragColor = vec4(color, 1.); // B & W only
-            gl_FragColor = vec4(color + vec3(val), 1.);
+            //gl_FragColor = vec4(color + vec3(val), 1.);
 
 
             //gl_FragColor = vec4(1., 0., 0., 1.);
             //gl_FragColor = texture2D(tDiffuse, vUv);
             //just output noise
             //gl_FragColor = vec4(val);
+            //gl_FragColor = vec4(color, howmuchrgbshifticanhaz);
+            gl_FragColor = vec4(color + vec3(val), howmuchrgbshifticanhaz);
 		}`
 };
 

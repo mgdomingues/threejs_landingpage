@@ -29,7 +29,7 @@ export default class Sketch{
 
         this.renderer.setPixelRatio(window.devicePixelRatio);
         this.renderer.setSize(this.width, this.height);
-        this.renderer.setClearColor(0xeeeeee, 1);
+        this.renderer.setClearColor(0x111111, 1);
         this.renderer.physicallyCorrectLights = true;
         this.renderer.outputEncoding = THREE.sRGBEncoding;
 
@@ -54,7 +54,7 @@ export default class Sketch{
         this.resize();
         this.render();
         this.setupResize();
-        //this.settings();
+        this.settings();
 
     }
 
@@ -79,10 +79,10 @@ export default class Sketch{
     settings() {
         let that = this;
         this.settings = {
-            progress: 0,
+            howmuchrgbshifticanhaz: 0.5,
         };
         this.gui = new dat.GUI();
-        this.gui.add(this.settings, "progress", 0, 1, 0.01);
+        this.gui.add(this.settings, "howmuchrgbshifticanhaz", 0, 2, 0.01);
     }
 
     setupResize() {
@@ -208,10 +208,13 @@ export default class Sketch{
     render() {
         if(!this.isPlaying) return;
         //change rate of rotation
-        this.time += 0.003;
+        this.time += 0.005;
         this.scene.rotation.x = this.time;
         this.scene.rotation.y = this.time;
         this.customPass.uniforms.time.value = this.time;
+
+        this.customPass.uniforms.howmuchrgbshifticanhaz.value = this.settings.howmuchrgbshifticanhaz;
+
         this.material.uniforms.time.value = this.time;
         this.material1.uniforms.time.value = this.time;
         requestAnimationFrame(this.render.bind(this));

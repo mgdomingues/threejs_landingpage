@@ -1,7 +1,7 @@
 const PostProcessing = {
   uniforms: {
     tDiffuse: { value: null },
-    howmuchrgbshifticanhaz: { value: 0 },
+    howmuchrgbshifticanhaz: { value: null },
     resolution: { value: null },
     pixelSize: { value: 1 },
     time: { value: 0 },
@@ -28,11 +28,11 @@ const PostProcessing = {
         }
 
 		void main(){
+            //multiply by amount of shift the vec2 values make the displacement bigger 
             vec2 shift = vec2(0.01, 0.01) * howmuchrgbshifticanhaz;
 
             // Black & White
             vec4 t = texture2D(tDiffuse,vUv);
-            //the multiplier makes it darker
             vec3 color = vec3((t.r + t.b + t.g)/5.);
 
             // RGB shift
@@ -46,6 +46,7 @@ const PostProcessing = {
 
 
             // Noise
+            //multiplier makes more noise
             float val = hash(vUv + time) * 0.3;
 
 			vec2 dxy = pixelSize / resolution;
@@ -55,13 +56,15 @@ const PostProcessing = {
 
             // Black & White + noise
             //gl_FragColor = vec4(color, 1.); // B & W only
-            gl_FragColor = vec4(color + vec3(val), 1.);
+            //gl_FragColor = vec4(color + vec3(val), 1.);
 
 
             //gl_FragColor = vec4(1., 0., 0., 1.);
             //gl_FragColor = texture2D(tDiffuse, vUv);
             //just output noise
             //gl_FragColor = vec4(val);
+            //gl_FragColor = vec4(color, howmuchrgbshifticanhaz);
+            gl_FragColor = vec4(color + vec3(val), howmuchrgbshifticanhaz);
 		}`,
 }
 
