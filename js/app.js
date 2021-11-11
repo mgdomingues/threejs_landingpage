@@ -49,7 +49,11 @@ export default class Sketch{
 
         this.isPlaying = true;
 
+    
+
         this.addObjects();
+        //func to calculate mouse speed 
+        this.mouseEvent();
         this.addPost(); 
         this.resize();
         this.render();
@@ -58,6 +62,22 @@ export default class Sketch{
 
     }
 
+
+    mouseEvent(){
+        this.mouse = 0;
+        this.lastX = 0;
+        this.lastY = 0;
+        this.speed = 0;
+
+        window.addEventListener('mousemove', (e) => {
+            //this.speed = (e.pageX - this.lastX) * 0.1
+            this.speed = Math.sqrt((e.pageX - this.lastX) ** 2 + (e.pageY - this.lastY) ** 2) * 0.1
+            //console.log(e.pageX,e.pageY);
+            //console.log(this.speed);
+            this.lastX = e.pageX
+            this.lastY = e.pageY
+        })
+    }
 
     addPost() {
         /**
@@ -127,6 +147,7 @@ export default class Sketch{
         let t=new THREE.TextureLoader().load(landscape);
         t.wrapS = t.wrapT = THREE.MirroredRepeatWrapping;
 
+        //material used to apply transforms to the polygon with the images
         this.material = new THREE.ShaderMaterial({
             extensions: {
                 derivatives: "#extensio GL_OES_standard_derivatives : enable" 
@@ -134,6 +155,8 @@ export default class Sketch{
             side: THREE.DoubleSide,
             uniforms : {
                 time: {type: "f", value: 0},
+                //add mouse uniform
+                mouse: { value: 0},
                 landscape: {value: t},
                 resolution: { type: "v4", value: new THREE.Vector4() },
                 uvRate1: {
@@ -147,6 +170,7 @@ export default class Sketch{
 
         });
 
+        //material1 used to apply transforms to the polygone vertices
         this.material1 = new THREE.ShaderMaterial({
             extensions: {
                 derivatives: "#extensio GL_OES_standard_derivatives : enable" 
@@ -154,6 +178,8 @@ export default class Sketch{
             side: THREE.DoubleSide,
             uniforms : {
                 time: {type: "f", value: 0},
+                //add mouse uniform
+                mouse: {value: 0},
                 landscape: {value: t},
                 resolution: { type: "v4", value: new THREE.Vector4() },
                 uvRate1: {
@@ -168,7 +194,7 @@ export default class Sketch{
         });
 
         //IcosahedronGeometry(radius : Float, detail : Integer)
-        this.geometry = new THREE.IcosahedronGeometry(1, 1);
+        this.geometry = new THREE.IcosahedronGeometry(1,1);
         this.geometry1 = new THREE.IcosahedronBufferGeometry(
             1.001,
             1
@@ -209,14 +235,31 @@ export default class Sketch{
         if(!this.isPlaying) return;
         //change rate of rotation
         this.time += 0.005;
+        //change the rate os deformations based on mouse
+        //console.log("mouse ", this.mouse);
+        //console.log("speed ", this.speed);
+        this.mouse -= (this.mouse - this.speed) * 0.05;
+        //restoure back to normal gradually
+        this.speed *=.99;
+
+        
         this.scene.rotation.x = this.time;
         this.scene.rotation.y = this.time;
+        
         this.customPass.uniforms.time.value = this.time;
+        //this.customPass.uniforms.howmuchrgbshifticanhaz.value = this.settings.howmuchrgbshifticanhaz;
+        //making this rgb setting also depend om mouse spped
+        this.customPass.uniforms.howmuchrgbshifticanhaz.value = this.mouse/3;
 
-        this.customPass.uniforms.howmuchrgbshifticanhaz.value = this.settings.howmuchrgbshifticanhaz;
-
+        //add time tranform to both material
         this.material.uniforms.time.value = this.time;
         this.material1.uniforms.time.value = this.time;
+       
+
+        //adding mouse tranform to both material    
+        this.material.uniforms.mouse.value = this.mouse;
+        this.material1.uniforms.mouse.value = this.mouse;
+
         requestAnimationFrame(this.render.bind(this));
         //this.renderer.render(this.scene, this.camera);
         this.composer.render();

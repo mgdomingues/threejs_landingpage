@@ -104,7 +104,11 @@ void main() {
   //using the noise to recalculate position
   //the noise float multiplier helps controling the deformation
   //the power rise pow() just makes it more beautifull
-  float noisy = 0.3 * pow(cnoise(vNormal), 3.) ;
+  //float noisy = 0.3 * pow(cnoise(vNormal), 3.) ;
+  //adding the mouse variable as the multiplier, this will be the mouse speed
+  //float noisy = mouse * pow(cnoise(vNormal), 3.) ;
+  //adding time
+  float noisy = mouse * pow(cnoise(vNormal + time), 3.) ;
   vec3 newPosition = position + (noisy * normal);
   
   
