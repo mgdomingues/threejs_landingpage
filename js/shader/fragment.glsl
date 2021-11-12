@@ -29,7 +29,7 @@ void main() {
   vec2 rand = hash22(vec2(floor(diffuse*10.)));
   
   vec2 uvv = vec2(
-		sign(rand.x - 0.5) * 1. + (rand.x - 0.5) * .6,
+		sign(rand.x - 0.5) * 1. + (rand.x - 0.5) * .3,
 		sign(rand.y - 0.5) * 1. + (rand.y - 0.5) * .6
 	);
 

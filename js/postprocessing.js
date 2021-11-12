@@ -47,7 +47,7 @@ const PostProcessing = {
 
             // Noise
             //multiplier makes more noise
-            float val = hash(vUv + time) * 0.3;
+            float val = hash(vUv + time) * 0.2;
 
 			vec2 dxy = pixelSize / resolution;
 			vec2 coord = dxy * floor( vUv / dxy );
